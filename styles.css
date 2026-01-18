@@ -1,3 +1,7 @@
+.workspace {
+	position: relative;
+}
+
 /* зона рядка */
 .line {
 	display: flex;
@@ -10,6 +14,7 @@
 
 	user-select: none;
 	cursor: default;
+
 }
 
 /* окремий символ */
@@ -28,6 +33,7 @@
 	font-size: 16px;
 
 	cursor: pointer;
+	position: relative;
 }
 
 .line span.is-selected {
@@ -60,4 +66,19 @@
 	min-height: 150px;
 	border: 1px dashed #999;
 	position: relative;
+}
+
+.marquee {
+	position: absolute;
+	pointer-events: none;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	z-index: 10;
+}
+
+.marquee.is-drawing {
+	background-color: rgba(0, 0, 0, 0.15);
+	border: 1px dashed rgba(0, 0, 0, 0.8);
 }

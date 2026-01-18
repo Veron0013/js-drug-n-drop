@@ -4,6 +4,8 @@ const inputTxt = document.querySelector("#textInput")
 
 const lineArea = document.querySelector('#line')
 
+const markCanvas = document.querySelector('#marquee')
+
 let isCtrlPressed = false
 
 let textItemData = {}
@@ -79,11 +81,46 @@ const handleKeyUp = (e) => {
 	//console.log(isCtrlPressed)
 }
 
+const handleMouseDown = (e) => {
+	markCanvas.classList.add('is-drawing')
+	markCanvas.style.top = `${e.layerY}px`
+	markCanvas.style.left = `${e.layerX}px`
+	console.log(e.layerX, "window.getBoundingClientRect()", markCanvas)
+}
+
+const handleMouseUp = (e) => {
+	markCanvas.classList.remove('is-drawing')
+}
+
+const handleMouseMove = (e) => {
+	//const moveTop = Math.abs(markCanvas.top - lastRect.startX)
+	markCanvas.style.top = `${e.layerY}px`
+	markCanvas.style.left = `${e.layerX}px`
+
+}
+
 
 document.addEventListener('keydown', handleKeyDown)
 document.addEventListener('keyup', handleKeyUp)
 
 submitForm.addEventListener("submit", submitFn);
 
-lineArea.addEventListener("click", handleLineClick)
+////lineArea.addEventListener("click", handleLineClick)
+//document.addEventListener("mousemove", e => { console.log("mousemove", e) })
+//document.addEventListener("mouseup", e => {
+//	markCanvas.classList.remove('is-drawing')
+//	console.log("mouseup", e)
+//})
+
+//lineArea.addEventListener("mousedown", handleMouseDown)
+////document.addEventListener("dragstart", e => { console.log("dragstart", e) });
+
+lineArea.addEventListener("pointerdown", handleMouseDown);
+
+document.addEventListener("pointermove", (e) => {
+	if (!e.buttons) return; // рух без натиснутої кнопки ігноруємо
+	console.log("pointermove", e);
+});
+
+document.addEventListener("pointerup", handleMouseUp);
 
