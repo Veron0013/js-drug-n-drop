@@ -8,21 +8,15 @@ const markCanvas = document.querySelector('#marquee')
 
 let isCtrlPressed = false
 
-let textItemData = {}
+let textItemData = []
 
-let newX = 0, newY = 0, startX = 0, startY = 0;
-
-const setCoordanatesData = (el) => {
-
-	if (!textItemData[el]) return
-
-}
+let newX = 0, newY = 0, startX = -1, startY = -1;
 
 const getHtmlForText = (text) => {
 	const splitted = text.split("")
 
 	const htmlForText = splitted.map((el, ind) =>
-		`<span class = "mark-span" id="sp-${ind}">${el.trim()}</span>`
+		`<span class = "mark-span" id="sp-${ind}">${el}</span>`
 	)
 
 	//console.log(splitted, htmlForText)
@@ -33,94 +27,100 @@ const getHtmlForText = (text) => {
 const submitFn = (e) => {
 	e.preventDefault();
 
-	textItemData = {}
+	textItemData = []
 
 	const textValuesHtml = getHtmlForText(inputTxt.value.trim())
 	lineArea.innerHTML = textValuesHtml
+
+	submitForm.reset();
 
 	highlightedItems = document.querySelectorAll('.mark-span')
 
 	highlightedItems.forEach((item) => {
 		const rect = item.getBoundingClientRect();
-		textItemData[item.id] = {
+
+		textItemData.push({
+			id: item.id,
 			top: rect.top,
 			left: rect.left,
 			right: rect.right,
 			bottom: rect.bottom,
 			isSelected: false,
 			isMarked: false
-		}
-	});
+		});
 
-	submitForm.reset();
+	})
+
 };
 
-const handleLineClick = (e) => {
+const handleLineClick = (rect) => {
 
-	if (!textItemData) return
+	console.log("click", textItemData)
+	if (!textItemData.length) return
 
-	const itemValue = e.target.closest('span')
+	//const itemValue = e.target.closest('span')
 
-	if (!itemValue) return
+	//if (!itemValue) {
+	itemList = textItemData.filter((item) => {
+		return item.left < rect.right && item.right > rect.left && item.top < rect.bottom && item.bottom > rect.top
+	})
+	//}
+	console.log("click", itemList, rect)
+	if (!itemList.length) return
 
-	if (isCtrlPressed) {
-		itemValue.classList.toggle("is-selected")
-		textItemData[itemValue.id].isMarked = itemValue.classList.contains("is-selected")
+	for (const element of itemList) {
+		spanElement = document.querySelector(`#${element.id}`)
+		spanElement.classList.toggle("is-selected")
+		element.isMarked = spanElement.classList.contains("is-selected")
 	}
-
-	console.log('click', textItemData[itemValue.id])
-}
-
-const handleKeyDown = (e) => {
-	isCtrlPressed = e.key === 'Control' && e.type === "keydown"
-	//console.log(isCtrlPressed)
-}
-
-const handleKeyUp = (e) => {
-	isCtrlPressed = e.key === 'Control' && e.type === "keydown"
-	//console.log(isCtrlPressed)
+	console.log('click', itemList, rect)
 }
 
 const handleMouseDown = (e) => {
 	markCanvas.classList.add('is-drawing')
-	markCanvas.style.top = `${e.layerY}px`
-	markCanvas.style.left = `${e.layerX}px`
-	console.log(e.layerX, "window.getBoundingClientRect()", markCanvas)
+	startX = e.clientX
+	startY = e.clientY
 }
 
 const handleMouseUp = (e) => {
 	markCanvas.classList.remove('is-drawing')
+
+	const rect = markCanvas.getBoundingClientRect();
+
+	startX = -1
+	startY = -1
+
+	markCanvas.style.top = "0px"
+	markCanvas.style.left = "0px"
+	markCanvas.style.width = "0px"
+	markCanvas.style.height = "0px"
+
+	console.log("move", e.ctrlKey, textItemData)
+	if (e.ctrlKey) handleLineClick(rect)
+
 }
 
 const handleMouseMove = (e) => {
-	//const moveTop = Math.abs(markCanvas.top - lastRect.startX)
-	markCanvas.style.top = `${e.layerY}px`
-	markCanvas.style.left = `${e.layerX}px`
+	if (startX < 0 && startY < 0) return
 
+	const top = Math.min(e.clientY, startY)
+	const left = Math.min(e.clientX, startX)
+
+	const width = Math.abs(e.clientX - startX)
+	const height = Math.abs(e.clientY - startY)
+
+	markCanvas.style.top = `${top}px`
+	markCanvas.style.left = `${left}px`
+	markCanvas.style.width = `${width}px`
+	markCanvas.style.height = `${height}px`
 }
 
 
-document.addEventListener('keydown', handleKeyDown)
-document.addEventListener('keyup', handleKeyUp)
-
 submitForm.addEventListener("submit", submitFn);
-
-////lineArea.addEventListener("click", handleLineClick)
-//document.addEventListener("mousemove", e => { console.log("mousemove", e) })
-//document.addEventListener("mouseup", e => {
-//	markCanvas.classList.remove('is-drawing')
-//	console.log("mouseup", e)
-//})
-
-//lineArea.addEventListener("mousedown", handleMouseDown)
-////document.addEventListener("dragstart", e => { console.log("dragstart", e) });
 
 lineArea.addEventListener("pointerdown", handleMouseDown);
 
-document.addEventListener("pointermove", (e) => {
-	if (!e.buttons) return; // рух без натиснутої кнопки ігноруємо
-	console.log("pointermove", e);
-});
+document.addEventListener("pointermove", handleMouseMove);
 
 document.addEventListener("pointerup", handleMouseUp);
 
