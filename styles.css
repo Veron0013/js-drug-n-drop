@@ -1,0 +1,63 @@
+/* зона рядка */
+.line {
+	display: flex;
+	flex-wrap: wrap;
+	/* якщо рядок довгий */
+	gap: 2px;
+	padding: 20px;
+	border: 1px solid #ccc;
+	min-height: 40px;
+
+	user-select: none;
+	cursor: default;
+}
+
+/* окремий символ */
+.line span {
+	display: inline-flex;
+	align-items: baseline;
+	justify-content: center;
+
+	min-width: 18px;
+	height: 24px;
+	padding: 2px 4px;
+
+	border-radius: 4px;
+	border: 1px solid black;
+	font-family: monospace;
+	font-size: 16px;
+
+	cursor: pointer;
+}
+
+.line span.is-selected {
+	background-color: #2563eb;
+	/* синій */
+	color: #fff;
+}
+
+.line span.is-dragging {
+	opacity: 0.4;
+}
+
+/* ghost-група */
+.drag-preview {
+	position: fixed;
+	pointer-events: none;
+	z-index: 9999;
+
+	display: flex;
+	gap: 2px;
+	padding: 4px;
+
+	background: rgba(37, 99, 235, 0.15);
+	border: 1px dashed #2563eb;
+	border-radius: 6px;
+}
+
+.canvas {
+	margin-top: 16px;
+	min-height: 150px;
+	border: 1px dashed #999;
+	position: relative;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="uk">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Text Select & Drag</title>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+
+	<body>
+		<main class="app">
+			<!-- FORM -->
+			<section class="panel" aria-label="Input panel">
+				<form id="textForm" autocomplete="off">
+					<label for="textInput">Введи рядок</label>
+
+					<div class="row">
+						<input id="textInput" name="text" type="text" placeholder="Наприклад: Hello world" required />
+
+						<button id="renderBtn" type="submit">Показати</button>
+					</div>
+				</form>
+			</section>
+
+			<!-- WORK AREA -->
+			<section class="workspace" aria-label="Workspace">
+				<!-- Line where characters will be rendered as spans -->
+				<div id="line" class="line" aria-label="Rendered line" tabindex="0"></div>
+
+				<!-- Marquee selection rectangle (you will position/size it via JS) -->
+				<div id="marquee" class="marquee" aria-hidden="true"></div>
+
+				<!-- Drop zone for dragging letters/groups outside the line -->
+				<div id="canvas" class="canvas" aria-label="Document drop area"></div>
+			</section>
+
+			<!-- OPTIONAL: debug / status -->
+			<footer class="status" aria-label="Status">
+				<div>
+					<span>Виділено: </span>
+					<output id="selectedCount">0</output>
+				</div>
+
+				<div>
+					<span>Порада: Ctrl + клік — додати/прибрати, drag — перетягнути.</span>
+				</div>
+			</footer>
+		</main>
+	</body>
+	<script src="script.js"></script>
+</html>
