@@ -14,6 +14,21 @@ let textItemData = []
 
 let startX = -1, startY = -1;
 
+let ghostPointer = undefined, dragId = undefined
+
+const handleDragOneModeStart = (targetSpan, e) => {
+
+	dragId = targetSpan.id
+
+	targetSpan.classList.add("is-dragging")
+
+	lineArea.insertAdjacentHTML("beforeend", `<div class="drag-ghost">${targetSpan.textContent}</div>`)
+
+	ghostPointer = document.querySelector('.drag-ghost')
+	ghostPointer.style.left = e.clientX + "px"
+	ghostPointer.style.top = e.clientY + "px"
+}
+
 const setTextItemData = () => {
 	textItemData = []
 
@@ -126,6 +141,8 @@ const handleMouseDown = (e) => {
 		if (!targetSpan || !targetSpan.classList.contains("is-selected")) return
 
 		mouseMode = 'dragOne'
+
+		handleDragOneModeStart(targetSpan, e)
 	}
 }
 
@@ -150,14 +167,29 @@ const handleMouseUp = (e) => {
 
 		console.log("move", e.ctrlKey, textItemData)
 
-		if (e.ctrlKey && mouseMode === 'selection') {
+		if (mouseMode === 'selection') {
 			if (!isClickMode) handleLineSelect(rect)
 			else handleLineClick(e)
 		}
+
 	}
+
+	if (mouseMode === "dragOne" && ghostPointer) {
+		console.log("dragOne")
+		ghostPointer.remove()
+		const targetSpan = document.querySelector(`#${dragId}`)
+		targetSpan.classList.remove("is-dragging")
+	}
+
+	mouseMode = 'none'
 }
 
 const handleMouseMove = (e) => {
+
+	if (mouseMode === "dragOne" && ghostPointer) {
+		ghostPointer.style.left = e.clientX + "px"
+		ghostPointer.style.top = e.clientY + "px"
+	}
 
 	if (startX < 0 && startY < 0) return
 
@@ -181,17 +213,17 @@ document.addEventListener("pointermove", handleMouseMove);
 
 document.addEventListener("pointerup", handleMouseUp);
 
-lineArea.addEventListener("dragstart", (e) => {
-	if (!textItemData.length) return
+//lineArea.addEventListener("dragstart", (e) => {
+//	if (!textItemData.length) return
 
-	const currentItem = e.target.closest('span')
+//	const currentItem = e.target.closest('span')
 
-	const ItemData = textItemData.filter((item) => { return item.id === currentItem.id && item.isMarked })
+//	const ItemData = textItemData.filter((item) => { return item.id === currentItem.id && item.isMarked })
 
-	if (!ItemData) {
-		console.log("no data drag")
-		return
-	}
+//	if (!ItemData) {
+//		console.log("no data drag")
+//		return
+//	}
 
 
-});
+//});

@@ -11,7 +11,6 @@
 .line {
 	display: flex;
 	flex-wrap: wrap;
-	/* якщо рядок довгий */
 	gap: 2px;
 	padding: 20px;
 	border: 1px solid #ccc;
@@ -43,7 +42,6 @@
 
 .line span.is-selected {
 	background-color: #2563eb;
-	/* синій */
 	color: #fff;
 }
 
@@ -52,14 +50,18 @@
 }
 
 /* ghost-група */
-.drag-preview {
+.drag-ghost {
 	position: fixed;
 	pointer-events: none;
 	z-index: 9999;
 
 	display: flex;
+	align-items: baseline;
+	justify-content: center;
 	gap: 2px;
-	padding: 4px;
+	min-width: 14px;
+	height: 20px;
+	padding: 2px 4px;
 
 	background: rgba(37, 99, 235, 0.15);
 	border: 1px dashed #2563eb;
