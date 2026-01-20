@@ -86,12 +86,10 @@ const handleLineSelect = (rect) => {
 
 	//const itemValue = e.target.closest('span')
 
-	//if (!itemValue) {
 	const itemList = textItemData.filter((item) => {
 		return item.left < rect.right && item.right > rect.left && item.top < rect.bottom && item.bottom > rect.top
 	})
-	//}
-	console.log("select", itemList, rect)
+
 	if (!itemList.length) return
 
 	for (const element of itemList) {
@@ -99,7 +97,6 @@ const handleLineSelect = (rect) => {
 		spanElement.classList.add("is-selected")
 		element.isMarked = spanElement.classList.contains("is-selected")
 	}
-	console.log('click', itemList, rect)
 }
 
 const handleLineClick = (e) => {
@@ -138,7 +135,10 @@ const handleMouseDown = (e) => {
 	} else {
 		const targetSpan = e.target.closest('span.mark-span')
 
-		if (!targetSpan || !targetSpan.classList.contains("is-selected")) return
+		if (!targetSpan || !targetSpan.classList.contains("is-selected")) {
+			mouseMode = 'none'
+			return
+		}
 
 		mouseMode = 'dragOne'
 
@@ -204,7 +204,7 @@ const handleMouseMove = (e) => {
 	markCanvas.style.height = `${height}px`
 }
 
-
+//listemers
 submitForm.addEventListener("submit", submitFn);
 
 lineArea.addEventListener("pointerdown", handleMouseDown);
@@ -212,18 +212,3 @@ lineArea.addEventListener("pointerdown", handleMouseDown);
 document.addEventListener("pointermove", handleMouseMove);
 
 document.addEventListener("pointerup", handleMouseUp);
-
-//lineArea.addEventListener("dragstart", (e) => {
-//	if (!textItemData.length) return
-
-//	const currentItem = e.target.closest('span')
-
-//	const ItemData = textItemData.filter((item) => { return item.id === currentItem.id && item.isMarked })
-
-//	if (!ItemData) {
-//		console.log("no data drag")
-//		return
-//	}
-
-
-//});
