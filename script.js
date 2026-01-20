@@ -6,6 +6,8 @@ const lineArea = document.querySelector('#line')
 
 const markCanvas = document.querySelector('#marquee')
 
+const textSelected = document.querySelector('#selectedCount')
+
 let isClickMode = true
 
 let mouseMode = "none"
@@ -18,6 +20,12 @@ let ghostPointer = undefined, dragId = undefined
 
 //////////////
 
+const setCounterText = () => {
+	textSelected.textContent = textItemData.filter((item) => {
+		return item.isMarked
+	}).length
+}
+
 const handleDragOneModeStart = (targetSpan, e) => {
 
 	dragId = targetSpan.id
@@ -27,8 +35,13 @@ const handleDragOneModeStart = (targetSpan, e) => {
 	lineArea.insertAdjacentHTML("beforeend", `<div class="drag-ghost">${targetSpan.textContent}</div>`)
 
 	ghostPointer = document.querySelector('.drag-ghost')
+	//ghostPointer.style.left = (e.clientX - e.offsetX) + "px"
+	//ghostPointer.style.top = (e.clientY - e.offsetY) + "px"
+
 	ghostPointer.style.left = e.clientX + "px"
 	ghostPointer.style.top = e.clientY + "px"
+
+	console.log("object", e.clientX, e)
 }
 
 const setTextItemData = () => {
@@ -46,7 +59,7 @@ const setTextItemData = () => {
 			right: rect.right,
 			bottom: rect.bottom,
 			isSelected: false,
-			isMarked: false
+			isMarked: item.classList.contains("is-selected")
 		});
 
 	})
@@ -119,6 +132,12 @@ const submitFn = (e) => {
 	const textValuesHtml = getHtmlForText(inputTxt.value.trim())
 	lineArea.innerHTML = textValuesHtml
 
+	textSelected.textContent = 0
+
+	setTextItemData()
+
+	setCounterText()
+
 	submitForm.reset();
 
 }
@@ -168,20 +187,33 @@ const handleMouseUp = (e) => {
 		markCanvas.style.width = "0px"
 		markCanvas.style.height = "0px"
 
-		console.log("move", e.ctrlKey, textItemData)
-
 		if (mouseMode === 'selection') {
 			if (!isClickMode) handleLineSelect(rect)
 			else handleLineClick(e)
 		}
 
+		console.log("up", e.ctrlKey, textItemData)
+
+		setCounterText()
 	}
 
 	if (mouseMode === "dragOne" && ghostPointer) {
-		console.log("dragOne")
+
 		ghostPointer.remove()
 		const targetSpan = document.querySelector(`#${dragId}`)
 		targetSpan.classList.remove("is-dragging")
+
+		const swapSpan = e.target.closest('span.mark-span')
+
+		if (!swapSpan) {
+			mouseMode = 'none'
+			return
+		}
+
+		const swapTemp = swapSpan.innerHTML
+
+		swapSpan.innerHTML = targetSpan.innerHTML
+		targetSpan.innerHTML = swapTemp
 	}
 
 	mouseMode = 'none'
@@ -190,6 +222,7 @@ const handleMouseUp = (e) => {
 const handleMouseMove = (e) => {
 
 	if (mouseMode === "dragOne" && ghostPointer) {
+
 		ghostPointer.style.left = e.clientX + "px"
 		ghostPointer.style.top = e.clientY + "px"
 	}
