@@ -16,6 +16,8 @@ let startX = -1, startY = -1;
 
 let ghostPointer = undefined, dragId = undefined
 
+//////////////
+
 const handleDragOneModeStart = (targetSpan, e) => {
 
 	dragId = targetSpan.id
@@ -69,16 +71,6 @@ const getHtmlForText = (text) => {
 	return htmlForText.join("")
 }
 
-const submitFn = (e) => {
-	e.preventDefault();
-
-	const textValuesHtml = getHtmlForText(inputTxt.value.trim())
-	lineArea.innerHTML = textValuesHtml
-
-	submitForm.reset();
-
-};
-
 const handleLineSelect = (rect) => {
 
 	console.log("select", textItemData)
@@ -118,6 +110,17 @@ const handleLineClick = (e) => {
 	itemList[0].isMarked = itemValue.classList.contains("is-selected")
 
 	console.log('click', itemList)
+}
+
+//listeners callbacks
+const submitFn = (e) => {
+	e.preventDefault();
+
+	const textValuesHtml = getHtmlForText(inputTxt.value.trim())
+	lineArea.innerHTML = textValuesHtml
+
+	submitForm.reset();
+
 }
 
 const handleMouseDown = (e) => {
