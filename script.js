@@ -19,7 +19,6 @@ let startX = -1, startY = -1;
 let ghostPointer = undefined, dragId = undefined
 
 //////////////
-
 const setCounterText = () => {
 	textSelected.textContent = textItemData.filter((item) => {
 		return item.isMarked
@@ -203,17 +202,24 @@ const handleMouseUp = (e) => {
 		const targetSpan = document.querySelector(`#${dragId}`)
 		targetSpan.classList.remove("is-dragging")
 
-		const swapSpan = e.target.closest('span.mark-span')
+		const pointerDOM = document.elementFromPoint(e.clientX, e.clientY)
 
-		if (!swapSpan) {
-			mouseMode = 'none'
-			return
+		const swapSpan = pointerDOM.closest('span.mark-span')
+
+		if (swapSpan) {
+
+			const swapTemp = swapSpan.innerHTML
+
+			swapSpan.innerHTML = targetSpan.innerHTML
+			targetSpan.innerHTML = swapTemp
+
+			setTextItemData()
+			setCounterText()
 		}
-
-		const swapTemp = swapSpan.innerHTML
-
-		swapSpan.innerHTML = targetSpan.innerHTML
-		targetSpan.innerHTML = swapTemp
+		else {
+			targetSpan.style.top = e.clientY + "px"
+			targetSpan.style.left = e.clientX + "px"
+		}
 	}
 
 	mouseMode = 'none'
