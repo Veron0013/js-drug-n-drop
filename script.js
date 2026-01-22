@@ -217,8 +217,12 @@ const handleMouseUp = (e) => {
 			setCounterText()
 		}
 		else {
-			targetSpan.style.top = e.clientY + "px"
-			targetSpan.style.left = e.clientX + "px"
+			containerRect = lineArea.getBoundingClientRect()
+
+			targetSpan.style.left = e.clientX - containerRect.left + "px"
+			targetSpan.style.top = e.clientY - containerRect.top + "px"
+
+			console.log("drop", e.clientX, containerRect.left)
 		}
 	}
 
