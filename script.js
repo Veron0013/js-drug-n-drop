@@ -219,8 +219,9 @@ const handleMouseUp = (e) => {
 		else {
 			containerRect = lineArea.getBoundingClientRect()
 
+			targetSpan.style.position = "absolute"
 			targetSpan.style.left = e.clientX - containerRect.left + "px"
-			targetSpan.style.top = e.clientY - containerRect.top + "px"
+			targetSpan.style.top = e.clientY - containerRect.top + 50 + "px"
 
 			console.log("drop", e.clientX, containerRect.left)
 		}
