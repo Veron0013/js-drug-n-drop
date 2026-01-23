@@ -8,6 +8,8 @@ const markCanvas = document.querySelector('#marquee')
 
 const textSelected = document.querySelector('#selectedCount')
 
+const body = document.querySelector('body')
+
 let isClickMode = true
 
 let mouseMode = "none"
@@ -25,13 +27,13 @@ const setCounterText = () => {
 	}).length
 }
 
-const handleDragOneModeStart = (targetSpan, e) => {
+const handleDragOneModeStart = (targetSpan, e, domElement) => {
 
 	dragId = targetSpan.id
 
 	targetSpan.classList.add("is-dragging")
 
-	lineArea.insertAdjacentHTML("beforeend", `<div class="drag-ghost">${targetSpan.textContent}</div>`)
+	domElement.insertAdjacentHTML("beforeend", `<div class="drag-ghost">${targetSpan.textContent}</div>`)
 
 	ghostPointer = document.querySelector('.drag-ghost')
 	//ghostPointer.style.left = (e.clientX - e.offsetX) + "px"
@@ -156,14 +158,22 @@ const handleMouseDown = (e) => {
 	} else {
 		const targetSpan = e.target.closest('span.mark-span')
 
-		if (!targetSpan || !targetSpan.classList.contains("is-selected")) {
+		if (targetSpan && targetSpan.classList.contains("is-selected")) {
+			mouseMode = 'dragOne'
+			handleDragOneModeStart(targetSpan, e, lineArea)
+		}
+
+		const floatSpan = e.target.closest('span.floating-span')
+
+		if (floatSpan && floatSpan.classList.contains("is-selected")) {
+			mouseMode = 'dragOne'
+			handleDragOneModeStart(floatSpan, e, document)
+		}
+
+		if (!targetSpan && !floatSpan) {
 			mouseMode = 'none'
 			return
 		}
-
-		mouseMode = 'dragOne'
-
-		handleDragOneModeStart(targetSpan, e)
 	}
 }
 
@@ -211,20 +221,30 @@ const handleMouseUp = (e) => {
 			swapNodes(swapSpan, targetSpan, lineArea)
 		}
 		else {
-			containerRect = lineArea.getBoundingClientRect()
+			//dropNodes(targetSpan)
 
-			targetSpan.style.position = "absolute"
-			targetSpan.style.left = e.clientX - containerRect.left + "px"
-			targetSpan.style.top = e.clientY - containerRect.top + 50 + "px"
+			const spValue = targetSpan.textContent
+			targetSpan.textContent = ""
+			targetSpan.classList.remove("is-selected")
 
-			console.log("drop", e.clientX, containerRect.left)
+			const floatedSpan = document.createElement("span")
+
+			floatedSpan.classList.add("floating-span")
+			floatedSpan.classList.add("is-selected")
+			floatedSpan.textContent = spValue
+			floatedSpan.style.left = e.clientX + "px"
+			floatedSpan.style.top = e.clientY + "px"
+
+			body.append(floatedSpan)
+
+			console.log("drop", e.clientX, floatedSpan)
 		}
 	}
 
 	mouseMode = 'none'
 }
 
-function swapNodes(swapNode, targetNode, parent) {
+const swapNodes = (swapNode, targetNode, parent) => {
 	//control
 	if (!swapNode || !targetNode || swapNode === targetNode) return;
 
