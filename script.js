@@ -208,13 +208,7 @@ const handleMouseUp = (e) => {
 
 		if (swapSpan) {
 
-			const swapTemp = swapSpan.innerHTML
-
-			swapSpan.innerHTML = targetSpan.innerHTML
-			targetSpan.innerHTML = swapTemp
-
-			setTextItemData()
-			setCounterText()
+			swapNodes(swapSpan, targetSpan, lineArea)
 		}
 		else {
 			containerRect = lineArea.getBoundingClientRect()
@@ -228,6 +222,21 @@ const handleMouseUp = (e) => {
 	}
 
 	mouseMode = 'none'
+}
+
+function swapNodes(swapNode, targetNode, parent) {
+	//control
+	if (!swapNode || !targetNode || swapNode === targetNode) return;
+
+	if (parent !== targetNode.parentNode) return;
+
+	const marker = document.createComment("marker");
+
+	parent.insertBefore(marker, swapNode);
+	parent.insertBefore(swapNode, targetNode);
+	parent.insertBefore(targetNode, marker);
+
+	marker.remove();
 }
 
 const handleMouseMove = (e) => {
