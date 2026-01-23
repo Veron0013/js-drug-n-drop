@@ -214,28 +214,33 @@ const handleMouseUp = (e) => {
 
 		const pointerDOM = document.elementFromPoint(e.clientX, e.clientY)
 
-		const swapSpan = pointerDOM.closest('span.mark-span')
+		const dropTarget = pointerDOM.closest('span.mark-span')
 
-		if (swapSpan) {
+		if (dropTarget) {
 
-			swapNodes(swapSpan, targetSpan, lineArea)
+			swapNodes(dropTarget, targetSpan, lineArea)
 		}
 		else {
 			//dropNodes(targetSpan)
 
-			const spValue = targetSpan.textContent
-			targetSpan.textContent = ""
-			targetSpan.classList.remove("is-selected")
+			const placeholder = document.createElement("span");
+			placeholder.classList.add("mark-span", "placeholder");
+			placeholder.dataset.placeholder = "true";
 
-			const floatedSpan = document.createElement("span")
+			const spValue = targetSpan.textContent;
 
-			floatedSpan.classList.add("floating-span")
-			floatedSpan.classList.add("is-selected")
-			floatedSpan.textContent = spValue
-			floatedSpan.style.left = e.clientX + "px"
-			floatedSpan.style.top = e.clientY + "px"
+			targetSpan.before(placeholder);
+			targetSpan.remove();
 
-			body.append(floatedSpan)
+			const floatedSpan = document.createElement("span");
+			floatedSpan.classList.add("floating-span", "is-selected");
+			floatedSpan.textContent = spValue;
+
+			floatedSpan.style.position = "fixed";
+			floatedSpan.style.left = e.clientX + "px";
+			floatedSpan.style.top = e.clientY + "px";
+
+			document.body.append(floatedSpan);
 
 			console.log("drop", e.clientX, floatedSpan)
 		}

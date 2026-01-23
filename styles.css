@@ -83,7 +83,7 @@ span.is-dragging {
 	font-size: 16px;
 
 	cursor: pointer;
-	position: absolute;
+	position: fixed;
 }
 
 .canvas {
