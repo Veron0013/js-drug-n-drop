@@ -236,9 +236,10 @@ const handleMouseUp = (e) => {
 		const isFloatingDrag = targetSpan.classList.contains("floating-span");
 		const isLineDrag = targetSpan.classList.contains("mark-span") && !isFloatingDrag;
 
-		const pointerDOM = document.elementFromPoint(e.clientX, e.clientY)
+		const pointerDOM = document.elementFromPoint(e.clientX, e.clientY);
+		const dropTarget = pointerDOM?.closest('span.mark-span');
 
-		const dropTarget = pointerDOM.closest('span.mark-span')
+		if (dropTarget === targetSpan) dropTarget = null;
 
 		if (dropTarget && dropTarget.dataset.placeholder === "true") {
 			if (isFloatingDrag) {
@@ -270,33 +271,30 @@ const handleMouseUp = (e) => {
 				swapPlain(dropTarget, targetSpan);
 			}
 		}
+		else {
+			// drop у пустоту
 
+			if (isLineDrag) {
+				// 1) перетворюємо dragged mark-span у floating
+				targetSpan.classList.remove("mark-span");
+				targetSpan.classList.add("floating-span");
+				targetSpan.style.position = "fixed";
+				targetSpan.style.left = e.clientX + "px";
+				targetSpan.style.top = e.clientY + "px";
 
-		//else {
-		//	//dropNodes(targetSpan)
+				// 2) виносимо в body (він зараз НЕ в DOM, бо його замінив placeholder)
+				document.body.append(targetSpan);
 
-		//	const placeholder = document.createElement("span");
-		//	placeholder.classList.add("mark-span", "placeholder");
-		//	placeholder.dataset.placeholder = "true";
+				// sourcePlaceholder лишається в рядку як "дірка" — ти саме цього хочеш
+			}
 
-		//	const spValue = { textContent: targetSpan.textContent, id: `d-${targetSpan.id}` };
-
-		//	targetSpan.before(placeholder);
-		//	targetSpan.remove();
-
-		//	const floatedSpan = document.createElement("span");
-		//	floatedSpan.classList.add("floating-span", "is-selected");
-		//	floatedSpan.id = spValue.id;
-		//	floatedSpan.textContent = spValue.textContent;
-
-		//	floatedSpan.style.position = "fixed";
-		//	floatedSpan.style.left = e.clientX + "px";
-		//	floatedSpan.style.top = e.clientY + "px";
-
-		//	document.body.append(floatedSpan);
-
-		//	console.log("drop", e.clientX, floatedSpan)
-		//}
+			if (isFloatingDrag) {
+				// просто перемістили floating
+				targetSpan.style.position = "fixed";
+				targetSpan.style.left = e.clientX + "px";
+				targetSpan.style.top = e.clientY + "px";
+			}
+		}
 	}
 
 	mouseMode = 'none'
