@@ -29,6 +29,7 @@ const setCounterText = () => {
 
 const handleDragOneModeStart = (targetSpan, e, domElement) => {
 
+	console.log("drag", targetSpan, e)
 	dragId = targetSpan.id
 
 	targetSpan.classList.add("is-dragging")
@@ -156,14 +157,19 @@ const handleMouseDown = (e) => {
 
 		markCanvas.classList.add('is-drawing')
 	} else {
+		console.log("dragmode")
 		const targetSpan = e.target.closest('span.mark-span')
+
+		console.log("dragmode", targetSpan)
 
 		if (targetSpan && targetSpan.classList.contains("is-selected")) {
 			mouseMode = 'dragOne'
 			handleDragOneModeStart(targetSpan, e, lineArea)
 		}
 
-		const floatSpan = e.target.closest('span.floating-span')
+		const floatSpan = e.target.closest('.floating-span')
+
+		console.log("dragmode", e.target)
 
 		if (floatSpan && floatSpan.classList.contains("is-selected")) {
 			mouseMode = 'dragOne'
@@ -288,7 +294,7 @@ const handleMouseMove = (e) => {
 //listemers
 submitForm.addEventListener("submit", submitFn);
 
-lineArea.addEventListener("pointerdown", handleMouseDown);
+document.addEventListener("pointerdown", handleMouseDown);
 
 document.addEventListener("pointermove", handleMouseMove);
 
