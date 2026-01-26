@@ -84,6 +84,7 @@ span.is-dragging {
 
 	cursor: pointer;
 	position: fixed;
+	z-index: 30;
 }
 
 .canvas {

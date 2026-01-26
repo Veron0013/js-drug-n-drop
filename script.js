@@ -18,7 +18,7 @@ let textItemData = []
 
 let startX = -1, startY = -1;
 
-let ghostPointer = undefined, dragId = undefined
+let ghostPointer = undefined, dragId = undefined, vSpanDrag = undefined, sourcePlaceholder = null;
 
 //////////////
 const setCounterText = () => {
@@ -29,8 +29,23 @@ const setCounterText = () => {
 
 const handleDragOneModeStart = (targetSpan, e, domElement) => {
 
-	console.log("drag", targetSpan, e)
+	const isLineChar = targetSpan.classList.contains("mark-span") && !targetSpan.classList.contains("placeholder");
+	const isFloating = targetSpan.classList.contains("floating-span");
+
+	if (isLineChar) {
+		sourcePlaceholder = document.createElement("span");
+		sourcePlaceholder.classList.add("mark-span", "placeholder");
+		sourcePlaceholder.dataset.placeholder = "true";
+		targetSpan.replaceWith(sourcePlaceholder);
+	} else {
+		sourcePlaceholder = null; // <-- важливо
+	}
+
+
+	console.log("drag", domElement, targetSpan, e, targetSpan.id)
 	dragId = targetSpan.id
+
+	vSpanDrag = targetSpan
 
 	targetSpan.classList.add("is-dragging")
 
@@ -164,7 +179,7 @@ const handleMouseDown = (e) => {
 
 		if (targetSpan && targetSpan.classList.contains("is-selected")) {
 			mouseMode = 'dragOne'
-			handleDragOneModeStart(targetSpan, e, lineArea)
+			handleDragOneModeStart(targetSpan, e, body)
 		}
 
 		const floatSpan = e.target.closest('.floating-span')
@@ -173,7 +188,7 @@ const handleMouseDown = (e) => {
 
 		if (floatSpan && floatSpan.classList.contains("is-selected")) {
 			mouseMode = 'dragOne'
-			handleDragOneModeStart(floatSpan, e, document)
+			handleDragOneModeStart(floatSpan, e, body)
 		}
 
 		if (!targetSpan && !floatSpan) {
@@ -212,63 +227,107 @@ const handleMouseUp = (e) => {
 		setCounterText()
 	}
 
-	if (mouseMode === "dragOne" && ghostPointer) {
+	if (mouseMode === "dragOne" && ghostPointer && vSpanDrag) {
 
 		ghostPointer.remove()
-		const targetSpan = document.querySelector(`#${dragId}`)
+		const targetSpan = vSpanDrag
 		targetSpan.classList.remove("is-dragging")
+
+		const isFloatingDrag = targetSpan.classList.contains("floating-span");
+		const isLineDrag = targetSpan.classList.contains("mark-span") && !isFloatingDrag;
 
 		const pointerDOM = document.elementFromPoint(e.clientX, e.clientY)
 
 		const dropTarget = pointerDOM.closest('span.mark-span')
 
-		if (dropTarget) {
+		if (dropTarget && dropTarget.dataset.placeholder === "true") {
+			if (isFloatingDrag) {
+				// floating -> line
+				targetSpan.classList.remove("floating-span");
+				targetSpan.style.position = "";
+				targetSpan.style.left = "";
+				targetSpan.style.top = "";
+				targetSpan.classList.add("mark-span");
+			}
 
-			swapNodes(dropTarget, targetSpan, lineArea)
+			dropIntoPlaceholder(dropTarget, targetSpan);
 		}
-		else {
-			//dropNodes(targetSpan)
 
-			const placeholder = document.createElement("span");
-			placeholder.classList.add("mark-span", "placeholder");
-			placeholder.dataset.placeholder = "true";
+		else if (dropTarget) {
+			if (isLineDrag) {
+				// твій варіант: swap з закриттям дірки
+				swapWithSourcePlaceholder(dropTarget, targetSpan);
+			} else if (isFloatingDrag) {
+				// floating dropped onto char inside line: swap без sourcePlaceholder
+				// перед цим перетворюємо floating на mark-span
+				targetSpan.classList.remove("floating-span");
+				targetSpan.style.position = "";
+				targetSpan.style.left = "";
+				targetSpan.style.top = "";
+				targetSpan.classList.add("mark-span");
 
-			const spValue = targetSpan.textContent;
-
-			targetSpan.before(placeholder);
-			targetSpan.remove();
-
-			const floatedSpan = document.createElement("span");
-			floatedSpan.classList.add("floating-span", "is-selected");
-			floatedSpan.textContent = spValue;
-
-			floatedSpan.style.position = "fixed";
-			floatedSpan.style.left = e.clientX + "px";
-			floatedSpan.style.top = e.clientY + "px";
-
-			document.body.append(floatedSpan);
-
-			console.log("drop", e.clientX, floatedSpan)
+				// звичайний swap (той, що ти вже робив через маркер)
+				swapPlain(dropTarget, targetSpan);
+			}
 		}
+
+
+		//else {
+		//	//dropNodes(targetSpan)
+
+		//	const placeholder = document.createElement("span");
+		//	placeholder.classList.add("mark-span", "placeholder");
+		//	placeholder.dataset.placeholder = "true";
+
+		//	const spValue = { textContent: targetSpan.textContent, id: `d-${targetSpan.id}` };
+
+		//	targetSpan.before(placeholder);
+		//	targetSpan.remove();
+
+		//	const floatedSpan = document.createElement("span");
+		//	floatedSpan.classList.add("floating-span", "is-selected");
+		//	floatedSpan.id = spValue.id;
+		//	floatedSpan.textContent = spValue.textContent;
+
+		//	floatedSpan.style.position = "fixed";
+		//	floatedSpan.style.left = e.clientX + "px";
+		//	floatedSpan.style.top = e.clientY + "px";
+
+		//	document.body.append(floatedSpan);
+
+		//	console.log("drop", e.clientX, floatedSpan)
+		//}
 	}
 
 	mouseMode = 'none'
+	vSpanDrag = undefined
+	sourcePlaceholder = null;
 }
 
-const swapNodes = (swapNode, targetNode, parent) => {
-	//control
-	if (!swapNode || !targetNode || swapNode === targetNode) return;
+const swapPlain = (a, b) => {
+	if (!a || !b || a === b) return;
+	const parent = a.parentNode;
+	if (!parent || parent !== b.parentNode) return;
 
-	if (parent !== targetNode.parentNode) return;
+	const marker = document.createComment("m");
+	a.before(marker);
+	a.replaceWith(b);
+	marker.replaceWith(a);
+};
 
-	const marker = document.createComment("marker");
+const swapWithSourcePlaceholder = (dropNode, dragNode) => {
+	if (!sourcePlaceholder) return; // важливо
 
-	parent.insertBefore(marker, swapNode);
-	parent.insertBefore(swapNode, targetNode);
-	parent.insertBefore(targetNode, marker);
+	const marker = document.createComment("m");
+	dropNode.before(marker);
+	sourcePlaceholder.replaceWith(dropNode);
+	marker.replaceWith(dragNode);
+};
 
-	marker.remove();
-}
+
+const dropIntoPlaceholder = (placeholderNode, dragNode) => {
+	placeholderNode.replaceWith(dragNode);
+};
 
 const handleMouseMove = (e) => {
 
